@@ -32,6 +32,10 @@ app.use('/api/live', liveRoutes);
 app.use('/api/admin', adminRoutes);
 app.use("/api" , performanceData)
 
+app.use("*", (req, res) => {
+  return res.status(404).json({msg:"Page not found"});
+});
+
 // Create admin user if not exists
 const createAdmin = async () => {
   try {
@@ -65,6 +69,8 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
+
+
 
 // Start Server
 const PORT = process.env.PORT || 5000;
