@@ -5,9 +5,9 @@ const { protect } = require('../middleware/auth');
 
 // Submit Live Account
 router.post('/', protect, async (req, res) => {
-  const { amount, transactionId } = req.body;
+  const { amount, transactionId , aadhar } = req.body;
 
-  if (!amount || !transactionId) {
+  if (!amount || !transactionId || !aadhar) {
     return res.status(400).json({ message: 'Please provide all fields' });
   }
 
@@ -15,10 +15,10 @@ router.post('/', protect, async (req, res) => {
     const live = await LiveAccount.create({
       user: req.user._id,
       amount,
-      transactionId
+      transactionId,
+      aadhar
     });
     
-
     res.status(201).json(live);
   } catch(err) {
     console.error(err);

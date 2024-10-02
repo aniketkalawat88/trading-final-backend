@@ -16,7 +16,8 @@ router.get('/competitors', protect, admin, async (req, res) => {
       number: c.user.number,
       dateRange: c.dateRange,
       transactionId: c.transactionId,
-      amount: c.amount
+      amount: c.amount,
+      aadhar:c.aadhar
     }));
     res.json(formatted);
   } catch(err) {
@@ -37,7 +38,8 @@ router.get('/live-accounts', protect, admin, async (req, res) => {
         number: l.user.number
       },
       amount: l.amount,
-      transactionId: l.transactionId
+      transactionId: l.transactionId,
+      aadhar:l.aadhar
     }));
     res.json(formatted);
   } catch(err) {

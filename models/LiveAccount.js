@@ -14,6 +14,10 @@ const LiveAccountSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true
+  },
+  aadhar:{
+    type:Number,
+    required:false
   }
 }, { timestamps: true });
 

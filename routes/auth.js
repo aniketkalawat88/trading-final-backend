@@ -5,12 +5,13 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const sendEmail = require('../utils/sendEmail');
 const generateOTP = require('../utils/generateOTP');
+const authMiddleware = require('../middleware/authMiddleware');
 
 dotenv.config();
 
 // Helper to generate JWT
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
 /**
@@ -19,7 +20,7 @@ const generateToken = (id) => {
  * @access  Public
  */
 router.post('/register', async (req, res) => {
-  const { name, email, number, password } = req.body;
+  const { name, email, number, password  } = req.body;
 
   if (!name || !email || !number || !password) {
     return res.status(400).json({ message: 'Please provide all fields' });
@@ -225,6 +226,22 @@ router.post('/reset-password', async (req, res) => {
 
     res.status(200).json({ message: 'Password has been reset successfully' });
   } catch(err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.get('/checkuser', authMiddleware, async (req, res) => {
+  try {
+    // At this point, req.user is available from the authMiddleware
+    const { role } = req.user;
+
+    res.status(200).json({
+      isAdmin: role === 'admin',
+      isUser: role === 'user',
+      role, // Optional: Return the role as well
+    });
+  } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
