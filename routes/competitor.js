@@ -5,9 +5,9 @@ const { protect } = require('../middleware/auth');
 
 // Submit Competitor Account
 router.post('/', protect, async (req, res) => {
-  const { dateRange, amount, transactionId ,aadhar} = req.body;
+  const { dateRange, amount, transactionId } = req.body;
 
-  if (!dateRange || !amount || !transactionId || !aadhar) {
+  if (!dateRange || !amount || !transactionId) {
     return res.status(400).json({ message: 'Please provide all fields' });
   }
 
@@ -17,7 +17,7 @@ router.post('/', protect, async (req, res) => {
       dateRange,
       amount,
       transactionId,
-      aadhar
+
     });
 
     res.status(201).json(competitor);
