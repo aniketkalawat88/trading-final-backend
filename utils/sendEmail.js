@@ -2,9 +2,9 @@ const transporter = require('../config/email');
 
 const sendEmail = async (to, subject, text) => {
   const mailOptions = {
-    from: `"Aniket Kalawat" ${process.env.EMAIL_USER}`, // Sender address
+    from: `"Meta Fx" ${process.env.EMAIL_USER}`, // Sender address
     to , // List of recipients
-    subject:"Register succesfull", // Subject line
+    subject:"Verification code", // Subject line
     text 
     // html: "<b>Hello world?</b>" // Optional: HTML body
   };
