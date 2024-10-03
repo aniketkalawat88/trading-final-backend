@@ -1,3 +1,5 @@
+const cloudinary = require('cloudinary');
+const multer = require('multer');
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
@@ -6,6 +8,7 @@ const dotenv = require('dotenv');
 const sendEmail = require('../utils/sendEmail');
 const generateOTP = require('../utils/generateOTP');
 const authMiddleware = require('../middleware/authMiddleware');
+const upload = require("../middleware/cloudinary-middleware");
 
 dotenv.config();
 
@@ -14,21 +17,18 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
-/**
- * @route   POST /api/auth/register
- * @desc    Register a new user and send OTP for verification
- * @access  Public
- */
-router.post('/register', async (req, res) => {
+
+router.post('/register',upload.single('image'), async (req, res) => {
   const { name, email, number, password  } = req.body;
 
   if (!name || !email || !number || !password) {
     return res.status(400).json({ message: 'Please provide all fields' });
   }
-
+  
   try {
     // Check if user exists
     const existingUser = await User.findOne({ email });
+    
     if (existingUser) {
       if (existingUser.isVerified) {
         return res.status(400).json({ message: 'User already exists' });
@@ -49,9 +49,13 @@ router.post('/register', async (req, res) => {
         return res.status(200).json({ message: 'OTP resent to email' });
       }
     }
-
+    
     // Create user with isVerified = false
     const otp = generateOTP();
+    let result = await cloudinary.v2.uploader.upload(req.file.path)
+    console.log('Cloudinary Upload Result:', result);
+    const  imageUrl = result.secure_url;
+    const cloudinaryId = result.public_id;
     const user = await User.create({
       name,
       email,
@@ -59,7 +63,11 @@ router.post('/register', async (req, res) => {
       password,
       isVerified: false,
       otp,
-      otpExpires: Date.now() + 10 * 60 * 1000 // 10 minutes
+      otpExpires: Date.now() + 10 * 60 * 1000, // 10 minutes
+      imageFront: {
+        imageUrl: imageUrl, 
+        cloudinaryId: cloudinaryId
+    },
     });
 
     // Send OTP email
@@ -79,11 +87,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-/**
- * @route   POST /api/auth/verify-otp
- * @desc    Verify OTP for registration
- * @access  Public
- */
+
 router.post('/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
 
@@ -114,11 +118,7 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
-/**
- * @route   POST /api/auth/login
- * @desc    Login user
- * @access  Public
- */
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -157,11 +157,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-/**
- * @route   POST /api/auth/forget-password
- * @desc    Request password reset OTP
- * @access  Public
- */
+
 router.post('/forget-password', async (req, res) => {
   const { email } = req.body;
 
@@ -195,11 +191,7 @@ router.post('/forget-password', async (req, res) => {
   }
 });
 
-/**
- * @route   POST /api/auth/reset-password
- * @desc    Reset password using OTP
- * @access  Public
- */
+
 router.post('/reset-password', async (req, res) => {
   const { email, otp, newPassword } = req.body;
 

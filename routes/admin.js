@@ -8,13 +8,17 @@ const { protect, admin } = require('../middleware/auth');
 // Get all Competitor Accounts
 router.get('/competitors', protect, admin, async (req, res) => {
   try {
-    const competitors = await CompetitorAccount.find().populate('user', 'name email number');
+    const competitors = await CompetitorAccount.find().populate('user', 'name email number imageFront.imageUrl imageFront.cloudinaryId');
     // Format response
     const formatted = competitors.map(c => ({
       name: c.user.name,
       email: c.user.email,
       number: c.user.number,
       dateRange: c.dateRange,
+      imageFront:{
+        imageUrl:c.user.imageFront.imageUrl || "no image",
+        cloudinaryId:c.user.imageFront.cloudinaryId || "No Cloudinary ID"
+      },
       transactionId: c.transactionId,
       amount: c.amount,
       aadhar:c.aadhar
@@ -29,13 +33,17 @@ router.get('/competitors', protect, admin, async (req, res) => {
 // Get all Live Accounts
 router.get('/live-accounts', protect, admin, async (req, res) => {
   try {
-    const liveAccounts = await LiveAccount.find().populate('user', 'name email number');
+    const liveAccounts = await LiveAccount.find().populate('user', 'name email number imageFront.imageUrl imageFront.cloudinaryId');
     // Format response
     const formatted = liveAccounts.map(l => ({
       user: {
         name: l.user.name,
         email: l.user.email,
-        number: l.user.number
+        number: l.user.number,
+        imageFront:{
+          imageUrl:l.user.imageFront.imageUrl || "no image",
+          cloudinaryId:l.user.imageFront.cloudinaryId || "No Cloudinary ID"
+        },
       },
       amount: l.amount,
       transactionId: l.transactionId,

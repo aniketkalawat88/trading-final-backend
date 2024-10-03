@@ -37,8 +37,13 @@ const UserSchema = new mongoose.Schema({
   },
   otpExpires: {
     type: Date
-  }
+  },
+  imageFront :{
+    imageUrl: { type: String, required: false },
+    cloudinaryId: { type: String, required: false }
+  },
 }, { timestamps: true });
+
 
 // Password hashing middleware
 UserSchema.pre('save', async function(next) {
